@@ -1,58 +1,94 @@
 <script setup>
-import { onMounted } from 'vue'
-import { getKey } from '@/api/login.js'
+import { onMounted, watch, ref } from 'vue'
+import { getKey, getVisitor } from '@/api/login.js'
 import { useLoginStore } from '@/stores/modules/login.js'
+import { useUserStore } from '@/stores/modules/user.js'
 import { storeToRefs } from 'pinia'
+import { useRouter } from 'vue-router'
 
 const loginStore = useLoginStore()
-const { picBase64 } = storeToRefs(loginStore)
+const userStore = useUserStore()
+const { picStatus } = storeToRefs(loginStore)
+const { isVisitor, userCookie } = storeToRefs(userStore)
+const router = useRouter()
+let tips = ref('')
 
-//初始化获取二维码
+//初始化：获取二维码
 onMounted(getKey)
+//初始化：清空Cookie和游客状态
+onMounted(() => {
+  console.log('test')
+  userStore.setIsVisitor(false)
+  userStore.setUserCookie('')
+})
+
+//方法：跳转主页
+const back = () => {
+  router.push('/')
+}
+
+//监听：登录状态
+watch([picStatus, isVisitor, userCookie], () => {
+  if (picStatus.value === 803 || (isVisitor.value && userCookie.value)) {
+    back()
+  }
+  if (isVisitor.value && !userCookie.value) {
+    tips.value = '登录失败'
+  }
+})
 </script>
 
 <template>
-  <div class="win_login">
+  <div class="win_login center">
     <header><h1>登录</h1></header>
     <img src="../../assets/logo.jpg" alt="logo" class="logo" />
-    <img alt="QRCode" @click="getKey" class="QRCode" :src="picBase64" />
+    <img
+      alt="QRCode"
+      @click="getKey"
+      class="QRCode"
+      :src="loginStore.picBase64"
+    />
     <p class="message">{{ loginStore.picStatus }}-{{ loginStore.picMsg }}</p>
-    <div class="visitor">游客登录</div>
+    <div class="visitor" @click="getVisitor">游客登录</div>
+    <p class="tip">{{ tips }}</p>
   </div>
 </template>
 
 <style scoped lang="less">
 .win_login {
-  width: 900px;
   height: 100vh;
   background-color: #f5f5f5;
   // background-color: red;
   margin: 0 auto;
   text-align: center;
+  font-size: 0.36rem;
+  // font-size: 18 / 50rem;
 
   img {
     display: block;
-    margin: 50px auto;
+    margin: 1rem auto;
   }
 
   .logo {
-    width: 100px;
-    border-radius: 20px;
+    width: 2rem;
+    border-radius: 0.4rem;
   }
 
   .QRCode {
-    width: 200px;
-    height: 200px;
+    width: 4rem;
+    height: 4rem;
   }
 
   .visitor {
     background-color: skyblue;
     width: 60%;
-    height: 50px;
+    height: 1rem;
     margin: 0 auto;
-    font-size: 18px;
-    border-radius: 25px;
-    line-height: 50px;
+    border-radius: 0.5rem;
+    line-height: 1rem;
+  }
+  .tip {
+    color: red;
   }
 }
 </style>
