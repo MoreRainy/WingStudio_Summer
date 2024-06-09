@@ -7,5 +7,8 @@ pinia.use(piniaPluginPersistedstate)
 export default pinia
 
 // export * from '@/stores/modules/user'
-import { useUserStore } from '@/stores/modules/user'
+import { useUserStore } from '@/stores/modules/userStore'
 export { useUserStore }
+
+import { useLoginStore } from '@/stores/modules/loginStore'
+export { useLoginStore }

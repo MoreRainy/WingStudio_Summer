@@ -4,9 +4,9 @@ import { ref } from 'vue'
 export const useUserStore = defineStore(
   'user',
   () => {
-    const userUid = ref('')
-    const setUserUid = (msg) => {
-      userUid.value = msg
+    const userId = ref('')
+    const setUserId = (msg) => {
+      userId.value = msg
     }
     const userCookie = ref('')
     const setUserCookie = (msg) => {
@@ -17,8 +17,8 @@ export const useUserStore = defineStore(
       isVisitor.value = flag
     }
     return {
-      userUid,
-      setUserUid,
+      userId,
+      setUserId,
       userCookie,
       setUserCookie,
       isVisitor,

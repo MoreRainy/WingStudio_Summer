@@ -21,6 +21,7 @@ export const useLoginStore = defineStore(
     const setPicMsg = (msg) => {
       picMsg.value = msg
     }
+
     return {
       picKey,
       setPicKey,

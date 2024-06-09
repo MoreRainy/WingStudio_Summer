@@ -1,8 +1,8 @@
 <script setup>
 import { onMounted, watch, ref } from 'vue'
 import { getKey, getVisitor } from '@/api/login.js'
-import { useLoginStore } from '@/stores/modules/login.js'
-import { useUserStore } from '@/stores/modules/user.js'
+import { useLoginStore } from '@/stores/modules/loginStore.js'
+import { useUserStore } from '@/stores/modules/userStore.js'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 
@@ -61,7 +61,7 @@ watch([picStatus, isVisitor, userCookie], () => {
   // background-color: red;
   margin: 0 auto;
   text-align: center;
-  font-size: 0.36rem;
+  font-size: 0.6rem;
   // font-size: 18 / 50rem;
 
   img {

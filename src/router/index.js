@@ -5,6 +5,7 @@ const router = createRouter({
   routes: [
     {
       path: '/login',
+      name: 'login',
       component: () => import('@/views/login/LoginPage.vue'),
       children: [
         {
@@ -20,7 +21,7 @@ const router = createRouter({
     },
     {
       path: '/',
-      component: () => import('@/views/home/HomePage.vue')
+      component: () => import('@/views/find/FindPage.vue')
     }
   ]
 })
