@@ -15,6 +15,7 @@ let tips = ref('')
 
 //初始化：获取二维码
 onMounted(getKey)
+
 //初始化：清空Cookie和游客状态
 onMounted(() => {
   console.log('test')
