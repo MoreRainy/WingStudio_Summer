@@ -38,10 +38,10 @@ const setTransition = () => {
 //获取banner
 onMounted(async () => {
   const data = await findBanner()
-  banners.value = data.data.banners
-  banners_num.value = Object.keys(banners.value).length
-  banners_first.value = banners.value[0].pic
-  banners_last.value = banners.value[banners_num.value - 1].pic
+  banners.value = data.data.banners //数组：获取数据
+  banners_num.value = Object.keys(banners.value).length //数字：获取轮播图总图片数量
+  banners_first.value = banners.value[0].pic //第一张图片，克隆到最后
+  banners_last.value = banners.value[banners_num.value - 1].pic //最后一张图片，克隆到最前
   banners_num.value += 2 //包含前后两张无缝切换克隆图
 })
 
@@ -69,9 +69,9 @@ onUnmounted(clearTimer)
 //获取初始落点
 const moveIn = (e) => {
   startX.value = e.targetTouches[0].pageX
-  transitionFlag.value = 0
-  clearTimer()
-  clearTransition()
+  transitionFlag.value = 0 //禁用过渡标识，不然轮播图会不跟手，延迟！
+  clearTimer() //禁用自动轮播
+  clearTransition() //清除过渡
 }
 //移动跟随
 const moveIng = (e) => {
@@ -91,11 +91,11 @@ const transitionEnd = () => {
   clearTransition()
   //无缝切换处理
   if (picCurrent.value === banners_num.value - 1) {
-    transitionFlag.value = 0
-    picCurrent.value = 1
+    transitionFlag.value = 0 //不能添加动画，因为要瞬时完成
+    picCurrent.value = 1 //暗地里切换图片位置，实现无缝切换
     setTimeout(() => {
       transitionFlag.value = 1
-    }, transitionLag * 1000)
+    }, transitionLag * 1000) //过渡结束，flag可用
   } else if (picCurrent.value === 0) {
     transitionFlag.value = 0
     picCurrent.value = banners_num.value - 2
@@ -106,6 +106,8 @@ const transitionEnd = () => {
 }
 //解释：template中使用translateX会报错，故使用模板字符串
 watch([picCurrent, moveX], () => {
+  //可用动画的情况：滑动不足30%回滚，滑动超过30%切图，
+  //不可用动画的情况：无缝衔接的切换，手指滑动轮播图
   if (transitionFlag.value) {
     setTransition()
   }
