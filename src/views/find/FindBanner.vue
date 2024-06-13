@@ -34,15 +34,20 @@ const clipLag = 0.2
 //轮播图初始值
 picPosition.value = -picCurrent.value * picWidth.value
 
-//清除动画函数，用于无缝衔接
-const clearTransition = () => {
-  document.querySelector('ul').style.transition = 'none'
-}
-//设置动画函数
-const setTransition = () => {
-  document.querySelector('ul').style.transition = `all ${transitionLag}s ease`
-}
-
+//动画函数
+const ul = ref(null)
+let clearTransition
+let setTransition
+onMounted(() => {
+  //清除动画函数，用于无缝衔接
+  clearTransition = () => {
+    ul.value.style.transition = 'none'
+  }
+  //设置动画函数
+  setTransition = () => {
+    ul.value.style.transition = `all ${transitionLag}s ease`
+  }
+})
 //获取banner
 onMounted(async () => {
   const data = await findBanner()

@@ -34,6 +34,11 @@ npm run build
 npm run lint
 ```
 
+<h1>注意：</h1>
+
+<p>因为公共样式center有20px的内边距，所以在有关获取deviceWidth的操作中大概率出现40这个数字
+</p>
+
 <h1>目前已知bug：</h1>
 
 <p>未知

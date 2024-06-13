@@ -11,10 +11,12 @@ export const useDeviceStore = defineStore(
     const setDeviceWidth = (msg) => {
       deviceWidth.value = msg
     }
+    const devicePadding = ref(40)
 
     return {
       deviceWidth,
-      setDeviceWidth
+      setDeviceWidth,
+      devicePadding
     }
   }
   //   ,
