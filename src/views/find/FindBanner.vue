@@ -23,10 +23,13 @@ const { deviceWidth } = storeToRefs(deviceStore)
 let picWidth = ref(deviceWidth.value - 40)
 let picHeight = ref(picWidth.value * 0.35)
 
+//在此处自定义
 //设置轮播图自动轮播时间间隔，单位ms
 const timeLag = 5000
 //设置过渡时间，单位s
 const transitionLag = 0.5
+//设置手动划动轮播图切换的阈值
+const clipLag = 0.2
 
 //轮播图初始值
 picPosition.value = -picCurrent.value * picWidth.value
@@ -62,6 +65,7 @@ let recordX = ref(0) //用于记录上次滑动距离，用于恢复过渡未完
 //注册定时器函数
 const setTimer = () => {
   timer.value = setInterval(() => {
+    transitionFlag.value = 1
     picCurrent.value += 1
   }, timeLag)
 }
@@ -76,16 +80,31 @@ onMounted(setTimer)
 onUnmounted(clearTimer)
 
 //移动轮播图
+//该函数表示轮播图切换（过渡）彻底完成，清除相关旗帜变量
+const bannerChange = () => {
+  recordX.value = 0 //过渡完成，表示没有连续滑动轮播图，可清除
+  //无缝切换处理
+  if (picCurrent.value === banners_num.value - 1) {
+    transitionFlag.value = 0 //不能添加动画，因为要瞬时完成
+    picCurrent.value = 1 //暗地里切换图片位置，实现无缝切换
+  } else if (picCurrent.value === 0) {
+    transitionFlag.value = 0
+    picCurrent.value = banners_num.value - 2
+  }
+}
+
 //获取初始落点
 const moveIn = (e) => {
   startX.value = e.targetTouches[0].pageX
   if (recordX.value) {
     //如果切图了，复原
-    if (Math.abs(recordX.value) > picWidth.value * 0.3) {
+    if (Math.abs(recordX.value) > picWidth.value * clipLag) {
       picCurrent.value +=
         (recordX.value / Math.abs(recordX.value)) *
         Math.floor(
-          (Math.abs(recordX.value) - picWidth.value * 0.3) / picWidth.value + 1
+          (Math.abs(recordX.value) - picWidth.value * clipLag) /
+            picWidth.value +
+            1
         )
     }
     //过渡未结束就点击，更改起始位置
@@ -109,41 +128,26 @@ const moveIng = (e) => {
   }
 }
 
-//判读是否拉动足够的距离（30%）
 const moveOut = () => {
-  if (Math.abs(moveX.value) > picWidth.value * 0.3) {
+  transitionFlag.value = 1
+  //判读是否拉动足够的距离（clipLag）
+  if (Math.abs(moveX.value) > picWidth.value * clipLag) {
     //用户一次可以滑过多个轮播图
+    //这段代码为复杂版，原用于处理一次划过多张图，但兼容一次划一张
     //头真疼吧，这串代码达到了想要的预期，但是不知道该如何写注释，我很怀疑以后还看不看得懂
     picCurrent.value -=
       (moveX.value / Math.abs(moveX.value)) *
       Math.floor(
-        (Math.abs(moveX.value) - picWidth.value * 0.3) / picWidth.value + 1
+        (Math.abs(moveX.value) - picWidth.value * clipLag) / picWidth.value + 1
       )
   }
   recordX.value = moveX.value //记录最后的距离
-  moveX.value = 0 //清空,此处清空moveX可达到回滚效果
-  transitionFlag.value = 1
-  setTimer()
-}
-
-const transitionEnd = () => {
-  transitionFlag.value = 1
-  recordX.value = null //过渡完成，表示没有连续滑动轮播图，可清除
-  clearTransition()
-  //无缝切换处理
-  if (picCurrent.value === banners_num.value - 1) {
-    transitionFlag.value = 0 //不能添加动画，因为要瞬时完成
-    picCurrent.value = 1 //暗地里切换图片位置，实现无缝切换
-    setTimeout(() => {
-      transitionFlag.value = 1
-    }, transitionLag * 1000) //过渡结束，flag可用
-  } else if (picCurrent.value === 0) {
-    transitionFlag.value = 0
-    picCurrent.value = banners_num.value - 2
-    setTimeout(() => {
-      transitionFlag.value = 1
-    }, transitionLag * 1000)
+  //特殊情况：上一次操作手动将轮播图完全切换，将不会触发transition过渡，手动清空recordX
+  if (Math.abs(moveX.value) === picWidth.value) {
+    bannerChange()
   }
+  moveX.value = 0 //清空,此处清空moveX可达到回滚效果
+  setTimer()
 }
 
 //解释：template中使用translateX会报错，故使用模板字符串
@@ -152,8 +156,22 @@ watch([picCurrent, moveX], () => {
   //不可用动画的情况：无缝衔接的切换，手指滑动轮播图
   if (transitionFlag.value) {
     setTransition()
+  } else {
+    clearTransition()
   }
   picPosition.value = -picCurrent.value * picWidth.value + moveX.value
+  // if (picPosition.value > 0) {
+  //   picPosition.value = 0
+  // } else if (
+  //   picPosition.value <
+  //   -1 * (banners_num.value - 1) * picWidth.value
+  // ) {
+  //   picPosition.value = -1 * (banners_num.value - 1) * picWidth.value
+  // }
+  //限制每次只能移动到左右两张图片
+  if (Math.abs(moveX.value) > picWidth.value) {
+    moveX.value = (moveX.value / Math.abs(moveX.value)) * picWidth.value
+  }
 })
 </script>
 
@@ -172,7 +190,7 @@ watch([picCurrent, moveX], () => {
         @touchstart="moveIn"
         @touchmove="moveIng"
         @touchend="moveOut"
-        @transitionend="transitionEnd"
+        @transitionend="bannerChange"
       >
         <li
           :style="{
