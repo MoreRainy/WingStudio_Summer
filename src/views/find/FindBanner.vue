@@ -1,6 +1,8 @@
 <script setup>
 import { findBanner } from '@/api/findPage'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { useDeviceStore } from '@/stores/modules/deviceStore'
+import { storeToRefs } from 'pinia'
 
 let banners = ref({}) //对象：接收轮播图图片url
 let banners_num = ref() //数字：用于渲染轮播图数量
@@ -14,7 +16,10 @@ let picPosition = ref() //数字：表示图片位置
 let transitionFlag = ref(1) //判断是否执行过渡，1执行过渡，0不执行过渡
 
 //获取设备数据（应该封装到仓库）
-let deviceWidth = ref(document.documentElement.clientWidth || window.innerWidth)
+const deviceStore = useDeviceStore()
+const { deviceWidth } = storeToRefs(deviceStore)
+
+//计算banner图片数据
 let picWidth = ref(deviceWidth.value - 40)
 let picHeight = ref(picWidth.value * 0.35)
 

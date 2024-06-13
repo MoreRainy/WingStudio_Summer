@@ -13,5 +13,5 @@ export { useUserStore }
 import { useLoginStore } from '@/stores/modules/loginStore'
 export { useLoginStore }
 
-import { deviceStore } from '@/stores/modules/loginStore'
-export { deviceStore }
+import { useDeviceStore } from '@/stores/modules/deviceStore'
+export { useDeviceStore }
